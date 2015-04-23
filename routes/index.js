@@ -3,6 +3,7 @@ var router = express.Router();
 var execFile = require('child_process').execFile;
 var path = require('path');
 var config = require('../config.js');
+var fs = require('fs');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -11,38 +12,38 @@ router.get('/', function(req, res, next) {
 
 
 router.post('/', function(req, res, next) {
-  var filePath = path.join(__dirname, '..', req.files.file.path);
-  var fileName = req.files.file.name.split('.')[0];
-  var fileOriginalName = req.files.file.originalname;
-  var info = '';
+  var id = req.files.file.name.split('.')[0];
+  res.render('wait', {title: 'wait', id: id});
+});
 
-  execFile('mkdir', [fileName], {cwd: config.uploadPath}, function(err, stdout, stderr) {
-    if(err) {
-      console.log(err);
-      next(err);
-    }else {
-      info += (stdout + stderr);
-      //console.log(info);
-      execFile('unzip', [filePath, '-d', fileName], {cwd: config.uploadPath}, function(err, stdout, stderr) {
-        if(err) {
-          console.log(err);
-          next(err);
-        }else {
-          info += (stdout + stderr);
-          console.log(info);
-          var manifestPath = path.join(config.uploadPath, fileName, 'manifest.json');
-          console.log(manifestPath);
-          res.download(manifestPath, 'manifest.json');
-          /*res.render('information', {title: 'success', information: info});
-          execFile('python', [config.crosswalk[0].make_apk_path, config.crosswalk[0].arch[0], '--package=org.spacelan', '--manifest=' + manifestPath], {cwd: config.apkPath}, function(err, stdout, stderr) {
+router.get('/apk/:id', function(req, res, next) {
+  var id = req.params.id;
+  var apkPath = path.join(__dirname, '../public/apk', id + '.apk');
+  var info = '';
+  console.log('apk path: ' + apkPath);
+  fs.exists(apkPath, function(exists) {
+    if(exists) {
+      res.download(filePath,'a.apk');
+    }else{
+      console.log('find zip file');
+      var zipPath = path.join(__dirname, '../upload/', id + '.zip');
+      fs.exists(zipPath, function(exists) {
+        if(exists) {
+          console.log('make apk');
+          execFile('./run', [id, '11.40.277.7'], {cwd: path.join(__dirname, '..')}, function(err, stdout, stderr) {
             if(err) {
               console.log(err);
               next(err);
             }else {
+              console.log('download');
               info += (stdout + stderr);
+              console.log(info);
               res.render('information', {title: 'success', information: info});
+              //res.download(apkPath);
             }
-          });*/
+          });
+        }else {
+          res.redirect('/');
         }
       });
     }

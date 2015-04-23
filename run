@@ -1,0 +1,10 @@
+#!/bin/bash
+
+id=${1}
+xwalkPath=./crosswalk/${2}
+upLoadPath=./upload
+apkPath=./public/apk
+
+unzip ${upLoadPath}/${id}.zip -d ${upLoadPath}/${id}/
+python ${xwalkPath}/make_apk.py --package=org.spacelan.${id} --manifest=${upLoadPath}/${id}/manifest.json --target-dir=${upLoadPath}/${id}/ --arch=arm
+cp ${upLoadPath}/${id}/*${id:1}* ${apkPath}/${id}.apk

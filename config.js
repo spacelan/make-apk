@@ -14,7 +14,5 @@ module.exports = {
       make_apk_path: path.join(__dirname, '/crosswalk/12.41.296.4/make_apk.py'),
       arch: ['arm', 'x86']
     }
-  ],
-  uploadPath: path.join(__dirname, '/upload/'),
-  apkPath: path.join(__dirname, '/public/apk/')
+  ]
 };

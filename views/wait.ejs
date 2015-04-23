@@ -1,0 +1,14 @@
+<% include header.ejs %>
+
+<div class="well jumbotron">
+  <h1><%= title %></h1>
+</div>
+
+
+<script type="text/javascript">
+  setTimeout(function() {
+    window.location.href = 'http://localhost:3000/apk/<%= id %>';
+  }, 2000);
+</script>
+
+<% include footer.ejs %>
