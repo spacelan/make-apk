@@ -1,0 +1,12 @@
+<% include header.ejs %>
+
+<div class="well jumbotron">
+  <h1><%= title %></h1>
+  <p>upload your file</p>
+  <form name="upload" id="upload" method="post" enctype="multipart/form-data" action="/">
+    <p><input class="btn btn-lg btn-default" type="file" name="file" /></p>
+    <p><input class="btn btn-primary btn-lg" type="submit" value="Submit" /></p>
+  </form>
+</div>
+
+<% include footer.ejs %>
