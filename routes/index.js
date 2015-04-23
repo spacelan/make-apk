@@ -1,41 +1,40 @@
 var express = require('express');
 var router = express.Router();
-var child_process = require('child_process');
+var execFile = require('child_process').execFile;
 var path = require('path');
-var execFileOptionUpload = {
-  cwd: path.join(__dirname, '../upload/')
-};
-var execFileOptionMakeApk = {
-  cwd: path.join(__dirname, '../public/apk/')
-}
-var xwalkPath = '/home/spacelan/crosswalk-11.40.277.7/make_apk.py';
-var xwalkArch = '--arch=arm';
-var xwalkPackage = '--package=org.spacelan';
+var config = require('../config.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Make APK' });
 });
 
+
 router.post('/', function(req, res, next) {
   var filePath = path.join(__dirname, '..', req.files.file.path);
-  var directory = req.files.file.name.split('.')[0];
+  var fileName = req.files.file.name.split('.')[0];
+  var fileOriginalName = req.files.file.originalname;
   var info = '';
-  child_process.execFile('mkdir', [directory], execFileOptionUpload, function(err, stdout, stderr) {
+
+  execFile('mkdir', [fileName], {cwd: config.uploadPath}, function(err, stdout, stderr) {
     if(err) {
       console.log(err);
       next(err);
     }else {
-      info = (stdout + stderr);
-      child_process.execFile('unzip', [filePath, '-d', directory], execFileOptionUpload, function(err, stdout, stderr) {
+      info += (stdout + stderr);
+      //console.log(info);
+      execFile('unzip', [filePath, '-d', fileName], {cwd: config.uploadPath}, function(err, stdout, stderr) {
         if(err) {
           console.log(err);
           next(err);
         }else {
-          info = (stdout + stderr);
-          var manifestPath = path.join(__dirname, '../upload', directory, 'manifest.json');
+          info += (stdout + stderr);
+          console.log(info);
+          var manifestPath = path.join(config.uploadPath, fileName, 'manifest.json');
           console.log(manifestPath);
-          child_process.execFile('python', [xwalkPath, xwalkArch, xwalkPackage, '--manifest=' + manifestPath], execFileOptionUpload, function(err, stdout, stderr) {
+          res.download(manifestPath, 'manifest.json');
+          /*res.render('information', {title: 'success', information: info});
+          execFile('python', [config.crosswalk[0].make_apk_path, config.crosswalk[0].arch[0], '--package=org.spacelan', '--manifest=' + manifestPath], {cwd: config.apkPath}, function(err, stdout, stderr) {
             if(err) {
               console.log(err);
               next(err);
@@ -43,7 +42,7 @@ router.post('/', function(req, res, next) {
               info += (stdout + stderr);
               res.render('information', {title: 'success', information: info});
             }
-          });
+          });*/
         }
       });
     }
