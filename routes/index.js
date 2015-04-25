@@ -8,6 +8,7 @@ var fs = require('fs');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Make APK' });
+  //res.send(req.host);
 });
 
 
@@ -23,7 +24,7 @@ router.get('/apk/:id', function(req, res, next) {
   console.log('apk path: ' + apkPath);
   fs.exists(apkPath, function(exists) {
     if(exists) {
-      res.download(filePath,'a.apk');
+      res.download(apkPath,'a.apk');
     }else{
       console.log('find zip file');
       var zipPath = path.join(__dirname, '../upload/', id + '.zip');
@@ -32,14 +33,18 @@ router.get('/apk/:id', function(req, res, next) {
           console.log('make apk');
           execFile('./run', [id, '11.40.277.7'], {cwd: path.join(__dirname, '..')}, function(err, stdout, stderr) {
             if(err) {
-              console.log(err);
+              console.log('err: \n', err);
+              console.log('stdout: \n', stdout);
+              console.log('stderr: \n', stderr);
               next(err);
+            }else if(stderr){
+              console.log('stderr');
+              console.log(stdout + stderr);
+              res.render('failure', {title: 'failure', information: stderr});
             }else {
-              console.log('download');
-              info += (stdout + stderr);
-              console.log(info);
-              res.render('information', {title: 'success', information: info});
-              //res.download(apkPath);
+              console.log('suceess');
+              console.log(stdout + stderr);
+              res.render('success', {title: 'success', information: stdout});
             }
           });
         }else {
